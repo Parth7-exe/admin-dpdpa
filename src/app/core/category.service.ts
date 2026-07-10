@@ -11,6 +11,7 @@ export interface CategoryDetail {
   description: string;
   iconUrl: string;
   isActive: boolean;
+  categoryName?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -45,8 +46,14 @@ export class CategoryService {
 
   /** Get all categories matching a title prefix (for dropdown options) */
   getOptions(titleContains: string): CategoryDetail[] {
-    const q = titleContains.toLowerCase();
-    return this._categories.value.filter((c) => c.isActive && c.title.toLowerCase().includes(q));
+    const q = titleContains.toLowerCase().trim();
+    return this._categories.value.filter((c) => 
+      c.isActive && (
+        c.title.toLowerCase().includes(q) ||
+        (c.categoryName && c.categoryName.toLowerCase() === q) ||
+        (c.categoryName && c.categoryName.toLowerCase().includes(q))
+      )
+    );
   }
 
   get all(): CategoryDetail[] {

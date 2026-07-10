@@ -240,7 +240,7 @@ export class ApplicationDetailComponent implements OnInit {
         { key: 'applicationId', label: 'Application ID', type: 'number', required: true },
         { key: 'environmentName', label: 'Environment Name', type: 'text', required: true },
         { key: 'url', label: 'Access URL', type: 'text' },
-        { key: 'environmentStatus', label: 'Status', type: 'select', optionsFromCategory: 'Environment Status' },
+        { key: 'environmentStatus', label: 'Status', type: 'select', optionsFromCategory: 'Environment Type' },
         { key: 'hostingLocation', label: 'Hosting Location / Region', type: 'text' },
         { key: 'isActive', label: 'Active Status', type: 'checkbox' }
       ]

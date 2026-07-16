@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of } from 'rxjs';
-import { tap, catchError } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of, forkJoin } from 'rxjs';
+import { tap, catchError, map } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { SP } from './config';
 
@@ -18,6 +18,10 @@ export interface CategoryDetail {
 export class CategoryService {
   private _categories = new BehaviorSubject<CategoryDetail[]>([]);
   categories$ = this._categories.asObservable();
+  
+  private _cookieCategories = new BehaviorSubject<any[]>([]);
+  cookieCategories$ = this._cookieCategories.asObservable();
+
   private loaded = false;
 
   constructor(private api: ApiService) {}
@@ -25,9 +29,14 @@ export class CategoryService {
   /** Load all active category details once at app startup */
   loadAll(): Observable<any> {
     if (this.loaded) return of(this._categories.value);
-    return this.api.search<CategoryDetail>(SP.CATEGORY_DETAIL.fn, { isActive: true }, 1, 1000).pipe(
+    
+    return forkJoin({
+      categories: this.api.search<CategoryDetail>(SP.CATEGORY_DETAIL.fn, { isActive: true }, 1, 1000),
+      cookieCategories: this.api.search<any>('dpdpa_fn_cookie_categories_mgmt', { isActive: true }, 1, 1000)
+    }).pipe(
       tap((result) => {
-        this._categories.next(result.records);
+        this._categories.next(result.categories.records || []);
+        this._cookieCategories.next(result.cookieCategories.records || []);
         this.loaded = true;
       }),
       catchError((err) => {
@@ -44,13 +53,27 @@ export class CategoryService {
     return match?.title ?? String(code);
   }
 
+  /** Resolve a cookie category ID → human-readable label */
+  getCookieLabel(categoryId: number | null | undefined): string {
+    if (categoryId == null) return '—';
+    const match = this._cookieCategories.value.find((c) => Number(c.categoryId) === Number(categoryId));
+    return match?.name ?? String(categoryId);
+  }
+
   /** Get all categories matching a title prefix (for dropdown options) */
   getOptions(titleContains: string): CategoryDetail[] {
     const q = titleContains.toLowerCase().trim();
+    // First, try exact match on parent categoryName
+    const exactMatches = this._categories.value.filter((c) => 
+      c.isActive && c.categoryName && c.categoryName.toLowerCase() === q
+    );
+    if (exactMatches.length > 0) {
+      return exactMatches;
+    }
+    // Fallback to original partial match logic if no exact match exists
     return this._categories.value.filter((c) => 
       c.isActive && (
         c.title.toLowerCase().includes(q) ||
-        (c.categoryName && c.categoryName.toLowerCase() === q) ||
         (c.categoryName && c.categoryName.toLowerCase().includes(q))
       )
     );
@@ -59,4 +82,9 @@ export class CategoryService {
   get all(): CategoryDetail[] {
     return this._categories.value;
   }
+
+  get cookieCategories(): any[] {
+    return this._cookieCategories.value;
+  }
 }
+

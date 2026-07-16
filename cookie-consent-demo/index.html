@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>microorange Stock Exchange | Demo Website</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --navy-light: #151d30;
+      --navy-dark: #070a12;
+      --blue: #3b82f6;
+      --purple: #8b5cf6;
+      --ink: #f8fafc;
+      --ink-dim: #94a3b8;
+      --border: rgba(255, 255, 255, 0.06);
+      
+      /* Theme custom colors loaded from DB */
+      --text-color: #86003c;
+      --btn-color: #86003c;
+      --btn-hover: #6a0030;
+      
+      --modal-bg: #ffffff;
+      --modal-text: #2c2c2c;
+      --modal-text-dim: #5c5c5c;
+      --border-light: #e5e7eb;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* ── Sticky Header ── */
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      background: rgba(11, 15, 25, 0.7);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 22px;
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 30px;
+      align-items: center;
+    }
+
+    .nav-link {
+      color: var(--ink-dim);
+      text-decoration: none;
+      font-size: 14.5px;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav-link:hover {
+      color: var(--ink);
+    }
+
+    .reset-btn {
+      color: #ef4444;
+      background: none;
+      border: none;
+      font-family: inherit;
+      font-size: 14.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: opacity 0.2s;
+    }
+
+    .reset-btn:hover {
+      opacity: 0.8;
+    }
+
+    .btn-launch {
+      background: linear-gradient(135deg, var(--blue), var(--purple));
+      color: #fff;
+      border: none;
+      padding: 10px 22px;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(59, 130, 246, 0.3);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-launch:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(59, 130, 246, 0.4);
+    }
+
+    /* ── Hero Section ── */
+    .hero {
+      padding: 180px 40px 100px;
+      max-width: 1200px;
+      margin: 0 auto;
+      text-align: center;
+      position: relative;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 2;
+    }
+
+    .hero-orb {
+      position: absolute;
+      top: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.12) 0%, rgba(11, 15, 25, 0) 70%);
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .hero-tag {
+      background: rgba(139, 92, 246, 0.08);
+      color: #a78bfa;
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      display: inline-block;
+      margin-bottom: 24px;
+      border: 1px solid rgba(139, 92, 246, 0.15);
+    }
+
+    .hero-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 56px;
+      font-weight: 800;
+      line-height: 1.15;
+      margin: 0 0 24px;
+      letter-spacing: -1px;
+    }
+
+    .hero-title span {
+      background: linear-gradient(135deg, #60a5fa, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-desc {
+      font-size: 18px;
+      color: var(--ink-dim);
+      max-width: 720px;
+      margin: 0 auto 40px;
+      line-height: 1.6;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-bottom: 80px;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--ink);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 12px 30px;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      width: 100%;
+      max-width: 1100px;
+      text-align: left;
+    }
+
+    .feature-card {
+      background: rgba(21, 29, 48, 0.4);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 30px;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(139, 92, 246, 0.3);
+    }
+
+    .feature-icon {
+      font-size: 32px;
+      margin-bottom: 20px;
+    }
+
+    .feature-name {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .feature-desc {
+      font-size: 14px;
+      color: var(--ink-dim);
+      line-height: 1.5;
+    }
+
+    /* ── Cookie Consent Bottom Banner ── */
+    .cookie-banner {
+      position: fixed;
+      bottom: 24px;
+      left: 24px;
+      right: 24px;
+      max-width: 600px;
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      backdrop-filter: blur(20px);
+      display: none;
+      animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .cookie-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 19px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .cookie-desc {
+      font-size: 13.5px;
+      color: var(--ink-dim);
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+
+    .cookie-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+
+    .btn-cookie-primary {
+      background: var(--btn-color);
+      color: #fff;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-cookie-primary:hover {
+      background: var(--btn-hover);
+    }
+
+    .btn-cookie-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--ink);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-cookie-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* ── Axis Bank Style Modal Backdrop ── */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      backdrop-filter: blur(4px);
+    }
+
+    /* ── Axis Bank Style Modal ── */
+    .cookie-modal {
+      width: 100%;
+      max-width: 580px;
+      background: var(--modal-bg);
+      color: var(--modal-text);
+      border-radius: 12px;
+      box-shadow: 0 15px 45px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      max-height: 90vh;
+      animation: zoomIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes zoomIn {
+      from { transform: scale(0.95); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border-light);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #ffffff;
+    }
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-color);
+      margin: 0;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      font-weight: 400;
+      color: #6c757d;
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+
+    .modal-close:hover {
+      color: #212529;
+    }
+
+    .modal-body {
+      padding: 24px;
+      overflow-y: auto;
+      line-height: 1.55;
+      font-size: 13.5px;
+      color: var(--modal-text-dim);
+    }
+
+    .modal-body p {
+      margin-bottom: 20px;
+    }
+
+    /* Accordion List */
+    .accordion-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .accordion-item {
+      border: 1px solid #dcdcdc;
+      border-radius: 8px;
+      background: #ffffff;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+
+    .accordion-item.open {
+      border-color: var(--text-color);
+    }
+
+    .accordion-header {
+      padding: 14px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+      cursor: pointer;
+    }
+
+    .accordion-title-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+    }
+
+    .accordion-chevron {
+      color: var(--text-color);
+      font-weight: bold;
+      font-size: 12px;
+      width: 16px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s ease-in-out;
+    }
+
+    .accordion-item.open .accordion-chevron {
+      transform: rotate(180deg);
+    }
+
+    .accordion-title {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: var(--text-color);
+    }
+
+    /* Dynamic Pill Boxes for Cookies */
+    .accordion-content {
+      padding: 0 20px 20px 20px;
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      border-top: 1px solid #f1f3f5;
+      padding-top: 14px;
+    }
+
+    .accordion-item.open .accordion-content {
+      display: flex;
+    }
+
+    .cookie-list-box {
+      max-height: 250px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-right: 4px;
+    }
+
+    .cookie-pill {
+      background: #f1f3f5;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 12.5px;
+      color: #333333;
+      border: 1px solid #e9ecef;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .cookie-pill-row {
+      line-height: 1.4;
+    }
+
+    /* Slide Toggle Switch */
+    .switch-toggle {
+      position: relative;
+      width: 48px;
+      height: 24px;
+    }
+
+    .switch-toggle input {
+      display: none;
+    }
+
+    .switch-toggle .slider {
+      position: absolute;
+      inset: 0;
+      background-color: #ced4da;
+      border-radius: 34px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .switch-toggle .slider::before {
+      content: "";
+      position: absolute;
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      border-radius: 50%;
+      transition: transform 0.2s;
+    }
+
+    .switch-toggle input:checked + .slider {
+      background-color: var(--btn-color);
+    }
+
+    .switch-toggle input:checked + .slider::before {
+      transform: translateX(24px);
+    }
+
+    .switch-toggle input:disabled + .slider {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    /* Modal Footer */
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border-light);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: #fdfdfd;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .btn-modal-save {
+      background-color: var(--btn-color);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      flex: 1;
+      transition: background-color 0.15s;
+      text-align: center;
+    }
+
+    .btn-modal-save:hover {
+      background-color: var(--btn-hover);
+    }
+
+    .btn-modal-necessary {
+      background-color: transparent;
+      color: var(--btn-color);
+      border: 1px solid var(--btn-color);
+      padding: 12px 20px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      flex: 1;
+      transition: background-color 0.15s, color 0.15s;
+      text-align: center;
+    }
+
+    .btn-modal-necessary:hover {
+      background-color: #fdf2f4;
+    }
+
+    .powered-by {
+      font-size: 11px;
+      color: #888888;
+      margin-top: 12px;
+      text-align: center;
+    }
+
+    .powered-by a {
+      color: var(--text-color);
+      text-decoration: none;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky Header -->
+  <header class="header">
+    <div class="logo">Jodetx Privacy Shield</div>
+    <nav class="nav-links">
+      <button onclick="resetDemo()" class="reset-btn">🔄 Reset Consent Demo</button>
+    </nav>
+    <button class="btn-launch" onclick="alert('Simulation running! Scroll to see cookie banner.')">Simulation Live</button>
+  </header>
+
+  <!-- Hero Section -->
+  <main class="hero">
+    <div class="hero-orb"></div>
+    <span class="hero-tag">Active Website Integration</span>
+    <h1 class="hero-title">Welcome to <span id="app-title">microorange Stock Exchange</span></h1>
+    <p class="hero-desc">
+      This page represents a live customer website. It queries active cookie configurations dynamically from the Jodetx database and logs user consent audits into `dpdpa_cookie_consents` in real-time.
+    </p>
+    <div class="hero-actions">
+      <button class="btn-launch" style="padding: 14px 34px; font-size: 15px;" onclick="forceOpenBanner()">Open Cookie Banner</button>
+      <button class="btn-secondary" onclick="resetDemo()">Clear Consent History</button>
+    </div>
+
+    <!-- Features -->
+    <div class="features">
+      <div class="feature-card">
+        <div class="feature-icon">🛡️</div>
+        <h3 class="feature-name">Consent Audits</h3>
+        <p class="feature-desc">Every click records a legally binding consent event containing hashed IP address, timestamp, browser details, and specific opt-ins.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📁</div>
+        <h3 class="feature-name">Dynamic Cookie Mappings</h3>
+        <p class="feature-desc">Cookies configured in the compliance admin dashboard are fetched dynamically and displayed on the website banner.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚙️</div>
+        <h3 class="feature-name">DPDP Compliance</h3>
+        <p class="feature-desc">Full satisfaction of Section 6 of the DPDP Act 2023 regarding specific, informed, and withdrawable consent.</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- ── Cookie Consent Bottom Banner ── -->
+  <div id="cookie-banner" class="cookie-banner">
+    <h3 class="cookie-title"><span>🍪</span> We value your privacy</h3>
+    <p class="cookie-desc">
+      We use cookies to personalize content, analyze traffic, and ensure site security. You can accept all, reject all non-essential cookies, or customize your preferences below.
+    </p>
+
+    <!-- Banner Actions -->
+    <div class="cookie-actions">
+      <button class="btn-cookie-secondary" onclick="openSettingsModal()">More Options</button>
+      <button class="btn-cookie-secondary" style="color: #ef4444;" onclick="handleChoice('REJECTED')">Reject All</button>
+      <button class="btn-cookie-primary" onclick="handleChoice('ALL')">Accept All</button>
+    </div>
+  </div>
+
+  <!-- ── Axis Bank Cookie Settings Modal Overlay ── -->
+  <div id="cookie-settings-modal" class="modal-backdrop">
+    <div class="cookie-modal">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-heading-title">About Cookies on Website</h3>
+        <button class="modal-close" onclick="closeSettingsModal()">&times;</button>
+      </div>
+      
+      <div class="modal-body">
+        <p id="cookie-notice-description">
+          Loading cookie policy…
+        </p>
+
+        <!-- Dynamic Accordion list -->
+        <div class="accordion-list" id="accordion-container">
+          <!-- Populated dynamically from Database -->
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <div class="modal-actions">
+          <button class="btn-modal-save" onclick="handleCustomPreferences()">Save My Preferences</button>
+          <button class="btn-modal-necessary" onclick="handleChoice('REJECTED')">Allow Only Necessary</button>
+        </div>
+        <div class="powered-by">
+          Powered by <a href="javascript:void(0)">Jodetx Privacy Shield</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = 'http://localhost:3010/dpdpa/api/v1/generic/execute';
+    let currentAppId = 18; // default fallback
+    let appName = 'microorange Stock Exchange';
+    let visitorId = '';
+    let cookieCategories = [];
+    let applicationCookies = [];
+
+    // Initialize Page
+    async function init() {
+      resolveVisitorId();
+      dropRealCookiesForScanning();
+      await fetchApplicationInfo();
+      await fetchCookieData();
+      checkConsentStatus();
+    }
+
+    // Set real cookies in user's browser so they can scan them using F12
+    function dropRealCookiesForScanning() {
+      document.cookie = "demo_session_token=axis_sess_993a4bc; path=/; max-age=3600; SameSite=Lax";
+      document.cookie = "demo_user_theme=dark; path=/; max-age=2592000; SameSite=Lax";
+      document.cookie = "demo_analytics_id=ga_demopage_123; path=/; max-age=63072000; SameSite=Lax";
+      document.cookie = "demo_ad_pixel=fb_retargeting_88; path=/; max-age=7776000; SameSite=Lax";
+    }
+
+    // Resolve / generate visitor ID
+    function resolveVisitorId() {
+      let saved = localStorage.getItem('dpdpa_visitor_uuid');
+      if (!saved) {
+        saved = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+          const r = Math.random() * 16 | 0;
+          const v = c === 'x' ? r : (r & 0x3 | 0x8);
+          return v.toString(16);
+        });
+        localStorage.setItem('dpdpa_visitor_uuid', saved);
+      }
+      visitorId = saved;
+    }
+
+    // Resolve application info dynamically
+    async function fetchApplicationInfo() {
+      // Check for query param appId, e.g. index.html?appId=18
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlAppId = urlParams.get('appId');
+      if (urlAppId) {
+        currentAppId = Number(urlAppId);
+      }
+
+      try {
+        const response = await fetch(API_BASE, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            spName: 'dpdpa_fn_application_master_mgmt',
+            payload: { action: 'SEARCH', applicationId: currentAppId, isActive: true, pageNo: 1, pageSize: 1 }
+          })
+        });
+        const res = await response.json();
+        const app = res?.data?.data?.data?.[0];
+        if (app) {
+          appName = app.applicationName || 'Website';
+          document.getElementById('app-title').textContent = appName;
+          document.getElementById('modal-heading-title').textContent = `About Cookies on ${appName} Website`;
+          const appNameDescEl = document.getElementById('modal-app-name-desc');
+          if (appNameDescEl) {
+            appNameDescEl.textContent = appName;
+          }
+
+          // Populate cookie notice description from dedicated DB table (dpdpa_cookie_notice_config)
+          let noticeText = null;
+          try {
+            const configResponse = await fetch(API_BASE, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                spName: 'dpdpa_fn_cookie_notice_config_mgmt',
+                payload: { action: 'GETBYAPP', applicationId: currentAppId }
+              })
+            });
+            const configRes = await configResponse.json();
+            console.log('[fetchApplicationInfo] configRes:', configRes);
+            // Unwrap response structure which has data.data depending on wrapper
+            const configData = configRes?.data?.data ?? configRes?.data;
+            console.log('[fetchApplicationInfo] configData:', configData);
+            noticeText = configData?.noticeDescription;
+            
+            // Set dynamic text and button colors!
+            if (configData?.textColor) {
+              document.documentElement.style.setProperty('--text-color', configData.textColor);
+            }
+            if (configData?.buttonColor) {
+              document.documentElement.style.setProperty('--btn-color', configData.buttonColor);
+              document.documentElement.style.setProperty('--btn-hover', configData.buttonColor + 'cc');
+            }
+          } catch (configErr) {
+            console.error('Failed to load cookie notice config from DB:', configErr);
+          }
+
+          const descEl = document.getElementById('cookie-notice-description');
+          if (descEl) {
+            const defaultDesc = `${appName}'s website may request cookies to be set on your device. We use cookies to identify when you visit our sites, to understand your interactions, and to enhance and personalize your experience. Cookies also support social features and tailor your engagement, including delivering more relevant advertisements. You can review the different category headings to learn more and adjust your cookie preferences anytime.`;
+            // Use DB description if it exists, otherwise show default
+            descEl.textContent = noticeText ? noticeText : defaultDesc;
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load application info from DB:', err);
+      }
+    }
+
+    // Load cookie categories and active cookies dynamically from DB
+    async function fetchCookieData() {
+      try {
+        // 1. Fetch categories
+        const catRes = await fetch(API_BASE, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            spName: 'dpdpa_fn_cookie_categories_mgmt',
+            payload: { action: 'SEARCH', isActive: true }
+          })
+        });
+        const catsData = await catRes.json();
+        cookieCategories = catsData?.data?.data?.data || [];
+
+        // 2. Fetch active cookies
+        const cookiesRes = await fetch(API_BASE, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            spName: 'dpdpa_fn_cookies_mgmt',
+            payload: { action: 'SEARCH', applicationId: currentAppId, isActive: true }
+          })
+        });
+        const cookiesData = await cookiesRes.json();
+        applicationCookies = cookiesData?.data?.data?.data || [];
+
+        renderAccordion();
+      } catch (err) {
+        console.error('Failed to load cookies list from DB:', err);
+      }
+    }
+
+    // Render preferences accordion list
+    function renderAccordion() {
+      const container = document.getElementById('accordion-container');
+      container.innerHTML = '';
+
+      cookieCategories.forEach(cat => {
+        // Find cookies belonging to this category
+        const catCookies = applicationCookies.filter(ck => Number(ck.categoryId) === Number(cat.categoryId));
+        const isEssential = !!cat.isEssential;
+
+        // Skip rendering this category if it is not Essential AND has no active cookies mapped
+        if (!isEssential && catCookies.length === 0) {
+          return;
+        }
+
+        const item = document.createElement('div');
+        item.className = 'accordion-item';
+        item.id = `accordion-item-${cat.categoryId}`;
+        
+        item.innerHTML = `
+          <div class="accordion-header" onclick="toggleAccordionItem(${cat.categoryId})">
+            <div class="accordion-title-container">
+              <span class="accordion-chevron">▼</span>
+              <span class="accordion-title">${cat.name}</span>
+            </div>
+            <label class="switch-toggle" onclick="event.stopPropagation()">
+              <input 
+                type="checkbox" 
+                class="category-toggle"
+                data-id="${cat.categoryId}"
+                data-name="${cat.name}"
+                ${isEssential ? 'checked disabled' : ''}
+              />
+              <span class="slider"></span>
+            </label>
+          </div>
+          
+          <div class="accordion-content">
+            ${cat.description ? `<div style="font-size: 13.5px; color: #555555; margin-bottom: 14px; line-height: 1.5; font-style: italic;">${cat.description}</div>` : ''}
+            <div class="cookie-list-box">
+              ${catCookies.map(ck => `
+                <div class="cookie-pill">
+                  <div class="cookie-pill-row"><strong>Name :</strong> ${ck.cookieName}</div>
+                  <div class="cookie-pill-row"><strong>Host :</strong> ${ck.domain || '*'}</div>
+                </div>
+              `).join('') || '<div style="color: #888; font-size: 12.5px; text-align: center; padding: 10px 0;">No cookies registered.</div>'}
+            </div>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    // Toggle accordion state
+    function toggleAccordionItem(catId) {
+      const target = document.getElementById(`accordion-item-${catId}`);
+      const isOpen = target.classList.contains('open');
+      
+      // Close all first
+      document.querySelectorAll('.accordion-item').forEach(item => {
+        item.classList.remove('open');
+      });
+
+      if (!isOpen) {
+        target.classList.add('open');
+      }
+    }
+
+    // Check if consent has already been saved
+    function checkConsentStatus() {
+      const consented = localStorage.getItem(`dpdpa_consent_saved_${currentAppId}`);
+      if (!consented) {
+        setTimeout(() => {
+          document.getElementById('cookie-banner').style.display = 'block';
+        }, 1500);
+      }
+    }
+
+    function forceOpenBanner() {
+      document.getElementById('cookie-banner').style.display = 'block';
+    }
+
+    // Settings Modal controls
+    function openSettingsModal() {
+      document.getElementById('cookie-settings-modal').style.display = 'flex';
+    }
+
+    function closeSettingsModal() {
+      document.getElementById('cookie-settings-modal').style.display = 'none';
+    }
+
+    // Save custom preferences
+    function handleCustomPreferences() {
+      handleChoice('PARTIAL');
+    }
+
+    // Handle Consent Action
+    async function handleChoice(status) {
+      const choices = {};
+      const toggles = document.querySelectorAll('.category-toggle');
+
+      // Map status to DB-allowed values
+      let dbStatus = status;
+      if (status === 'ALL')      dbStatus = 'ALL';
+      if (status === 'REJECTED') dbStatus = 'REJECTED';
+      if (status === 'PARTIAL')  dbStatus = 'PARTIAL';
+
+      if (status === 'ALL') {
+        toggles.forEach(t => choices[t.dataset.name.replace(' Cookies', '')] = true);
+      } else if (status === 'REJECTED') {
+        toggles.forEach(t => {
+          const isEssential = t.hasAttribute('disabled');
+          choices[t.dataset.name.replace(' Cookies', '')] = isEssential;
+        });
+      } else {
+        toggles.forEach(t => {
+          choices[t.dataset.name.replace(' Cookies', '')] = t.checked;
+        });
+      }
+
+      const payload = {
+        action: 'C',
+        orgId: 1,
+        applicationId: currentAppId,
+        visitorId: visitorId,
+        consentStatus: dbStatus,
+        consentMethod: 'Cookie Banner',
+        categoryChoices: choices,
+        noticeVersion: 'V1.0',
+        languageCode: navigator.language?.split('-')[0] || 'en',
+        userAgent: navigator.userAgent
+      };
+
+      try {
+        const response = await fetch(API_BASE, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            spName: 'dpdpa_pa_cookie_consents_mgmt',
+            payload: payload
+          })
+        });
+        const res = await response.json();
+        const inner = res?.data;
+        if (inner?.responseCode === '0' || inner?.responseCode === '00') {
+          showConsentToast('✅ Preferences saved! Your consent has been recorded.');
+          localStorage.setItem(`dpdpa_consent_saved_${currentAppId}`, 'true');
+          localStorage.setItem(`dpdpa_consent_id_${currentAppId}`, inner?.data?.id || '');
+          document.getElementById('cookie-banner').style.display = 'none';
+          closeSettingsModal();
+        } else {
+          // If visitor already has active consent, treat it as success (just close the banner)
+          if (inner?.description?.includes('Already Exists')) {
+            showConsentToast('✅ Your preferences are already saved.');
+            localStorage.setItem(`dpdpa_consent_saved_${currentAppId}`, 'true');
+            document.getElementById('cookie-banner').style.display = 'none';
+            closeSettingsModal();
+          } else {
+            alert('Error logging consent: ' + (inner?.description || 'DB write failed.'));
+          }
+        }
+      } catch (err) {
+        alert('API Connection Error: Make sure your NestJS backend is running!');
+      }
+    }
+
+    // Toast notification for consent saved
+    function showConsentToast(msg) {
+      let toast = document.getElementById('consent-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'consent-toast';
+        toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a1a2e;color:#fff;padding:14px 28px;border-radius:10px;font-size:14px;font-weight:600;z-index:99999;box-shadow:0 8px 32px rgba(0,0,0,0.4);transition:opacity 0.4s;border-left:4px solid #22c55e;';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = msg;
+      toast.style.opacity = '1';
+      setTimeout(() => { toast.style.opacity = '0'; }, 3500);
+    }
+
+    // Reset Demo
+    function resetDemo() {
+      localStorage.removeItem(`dpdpa_consent_saved_${currentAppId}`);
+      alert('Demo Reset! Refreshing the page will show the cookie banner again.');
+      window.location.reload();
+    }
+
+    init();
+  </script>
+</body>
+</html>

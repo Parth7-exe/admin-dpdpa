@@ -30,16 +30,12 @@ interface NavGroup {
       <!-- ── Sidebar Navigation ── -->
       <aside class="sidebar">
         <div class="sidebar-logo" style="padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.07); display: flex; align-items: center; justify-content: center;">
-          <img src="assets/logo.png" alt="Jodetx Logo" style="max-height: 32px; max-width: 100%; filter: brightness(0) invert(1);" />
+          <img src="assets/logo.png" alt="Logo" style="max-height: 32px; max-width: 100%; filter: brightness(0) invert(1);" />
         </div>
 
-        <div class="sidebar-section-label">Compliance Operations</div>
+        <div class="sidebar-section-label">{{ orgAlias }}</div>
 
         <nav style="flex: 1; padding: 10px 0;">
-          <a routerLink="/dashboard" routerLinkActive="active" class="nav-item-top">
-            <i class="bi bi-speedometer2" style="display: inline-block; width: 18px; opacity: 0.8;"></i> &nbsp;<span>Dashboard</span>
-          </a>
-
           <div *ngFor="let grp of navGroups" class="nav-group">
             <div class="nav-group-header" 
                  [class.collapsed]="grp.collapsed"
@@ -65,18 +61,18 @@ interface NavGroup {
         <!-- ── Topbar ── -->
         <header class="topbar">
           <div class="topbar-left">
-            DPDP Act 2023 Compliance Panel
+            {{ orgName }}
           </div>
           <div class="topbar-right" *ngIf="currentUser">
             <div class="topbar-badge" style="background: var(--purple-light); color: var(--purple);">
               <span>🛡️</span> {{ currentUser.roleName }}
             </div>
-            <div class="topbar-badge">
-              <span>🏢</span> Org ID: {{ orgId }}
-            </div>
             <div style="font-weight: 500; font-size: 13px; color: var(--ink-2); display: flex; align-items: center; gap: 8px;">
               <span style="width: 32px; height: 32px; border-radius: 50%; background: var(--blue); color: #fff; display: grid; place-items: center; font-weight: 700;">{{ currentUser.initials }}</span>
-              <span>{{ currentUser.email }}</span>
+              <span style="display: flex; flex-direction: column; line-height: 1.3;">
+                <span style="font-weight: 600; color: var(--ink); font-size: 13px;">{{ currentUser.name || currentUser.email }}</span>
+                <span style="font-size: 11px; color: var(--ink-3);">{{ currentUser.email }}</span>
+              </span>
               <button (click)="logout()" style="background: transparent; border: 1px solid var(--line); color: var(--red); padding: 5px 10px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 600; cursor: pointer; transition: all var(--transition); margin-left: 8px;">
                 🚪 Logout
               </button>
@@ -108,6 +104,8 @@ interface NavGroup {
 export class ShellComponent implements OnInit {
   toasts$: Observable<ToastMessage[]>;
   orgId = environment.orgId;
+  orgName = '';
+  orgAlias = '';
   currentUser: User | null = null;
 
   navGroups: NavGroup[] = [];
@@ -122,6 +120,7 @@ export class ShellComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.loadOrgInfo();
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
       if (user) {
@@ -132,8 +131,25 @@ export class ShellComponent implements OnInit {
     });
   }
 
+  loadOrgInfo() {
+    // Load org name and alias from dpdpa_organization_mst
+    this.apiService.search<any>('dpdpa_fn_organization_master_mgmt', { isActive: true }, 1, 1).subscribe({
+      next: (res) => {
+        if (res && res.records && res.records.length > 0) {
+          const org = res.records[0];
+          this.orgName = org.orgName || org.org_name || '';
+          this.orgAlias = org.alias || '';
+        }
+      },
+      error: () => { /* no fallback — leave blank if DB unavailable */ }
+    });
+  }
+
   loadMenu() {
-    const roleFilter = this.currentUser ? { isActive: true, roleId: this.currentUser.roleId } : { isActive: true };
+    // Map entity_type → tbl_menu.role_id:
+    // 3 (Data Principal) → role_id 3; all others (1=Site Admin, 2=DPO, 4=Super Admin) → role_id 1
+    const menuRoleId = this.currentUser?.roleId === 3 ? 3 : 1;
+    const roleFilter = { isActive: true, roleId: menuRoleId };
     this.apiService.search<any>(SP.MENU_MGMT.fn, roleFilter).subscribe({
       next: (res) => {
         if (res && res.records) {

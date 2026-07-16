@@ -7,6 +7,8 @@ export interface User {
   roleId: number;
   roleName: string;
   initials: string;
+  name: string;
+  entityId: string; // e.g. JDX00006
 }
 
 @Injectable({
@@ -31,15 +33,13 @@ export class AuthService {
     return this.currentUserSubject.value;
   }
 
-  public login(email: string, roleId: number, roleName: string): boolean {
-    const initials = email.split('@')[0].substring(0, 2).toUpperCase() || 'US';
-    const user: User = {
-      email,
-      roleId,
-      roleName,
-      initials
-    };
+  public login(email: string, roleId: number, roleName: string, name = '', entityId = ''): boolean {
+    const parts = (name || email).split(' ');
+    const initials = parts.length >= 2
+      ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+      : email.substring(0, 2).toUpperCase();
 
+    const user: User = { email, roleId, roleName, initials, name: name || email, entityId };
     localStorage.setItem('dpdpa_user', JSON.stringify(user));
     this.currentUserSubject.next(user);
     return true;

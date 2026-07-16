@@ -47,7 +47,7 @@ import { CategoryLabelPipe } from '../../pipes/category-label.pipe';
               <!-- Render category dropdown lookups (if key ends with 'Type' or matches specific lookup keys) -->
               <ng-container *ngIf="col.key !== 'isActive' && col.key !== 'status' && col.key !== 'applicationStatus' && col.key !== 'environmentStatus'">
                 <ng-container *ngIf="isLookupKey(col.key); else rawVal">
-                  {{ row[col.key] | categoryLabel }}
+                  {{ row[col.key] | categoryLabel:col.key }}
                 </ng-container>
                 <ng-template #rawVal>
                   <span [class.clickable-link-text]="isClickableColumn(col.key)">

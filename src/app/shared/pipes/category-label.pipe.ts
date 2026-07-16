@@ -8,7 +8,10 @@ import { CategoryService } from '../../core/category.service';
 export class CategoryLabelPipe implements PipeTransform {
   constructor(private categoryService: CategoryService) {}
 
-  transform(value: number | null | undefined): string {
+  transform(value: any, key?: string): string {
+    if (key === 'categoryId' || key === 'category_id') {
+      return this.categoryService.getCookieLabel(value);
+    }
     return this.categoryService.getLabel(value);
   }
 }

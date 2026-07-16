@@ -1,0 +1,327 @@
+
+<!-- Main View Container -->
+<div class="portal-container">
+  <!-- ── Dashboard View ── -->
+  <div *ngIf="currentView === 'dashboard'" class="fade-in">
+    <div class="view-header-block">
+      <h2 class="view-title">My Privacy Dashboard</h2>
+      <p class="view-subtitle">Overview of your personal data protection, active consents, and exercisable rights.</p>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card glass-panel">
+        <div class="stat-icon">☑</div>
+        <div class="stat-num">{{ getActiveConsentsCount() }}</div>
+        <div class="stat-label">Active Consents</div>
+      </div>
+      <div class="stat-card glass-panel">
+        <div class="stat-icon">⚖</div>
+        <div class="stat-num">{{ getPendingRequestsCount() }}</div>
+        <div class="stat-label">Pending DSR Requests</div>
+      </div>
+      <div class="stat-card glass-panel">
+        <div class="stat-icon">🗄</div>
+        <div class="stat-num">{{ dataCategories.length }}</div>
+        <div class="stat-label">Data Categories</div>
+      </div>
+      <div class="stat-card glass-panel">
+        <div class="stat-icon">📣</div>
+        <div class="stat-num">{{ grievances.length }}</div>
+        <div class="stat-label">Raise Grievances</div>
+      </div>
+    </div>
+
+    <!-- Recent Activity table -->
+    <div class="card-panel glass-panel">
+      <h3 class="panel-title">Recent Privacy Requests</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Reference</th>
+              <th>Request Type</th>
+              <th>Data Category</th>
+              <th>Submitted</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let r of requests.slice(0, 4)">
+              <td class="ref-col">{{ r.ref }}</td>
+              <td>{{ r.type }}</td>
+              <td>{{ r.cat }}</td>
+              <td>{{ r.date }}</td>
+              <td>
+                <span class="badge" [ngClass]="getBadgeClass(r.status)">{{ r.status }}</span>
+              </td>
+            </tr>
+            <tr *ngIf="requests.length === 0">
+              <td colspan="5" style="text-align: center; color: #7c8696; padding: 20px;">No requests found.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card-panel glass-panel">
+      <h3 class="panel-title">Data Categories Subject to Consent</h3>
+      <div class="pills-container">
+        <span *ngFor="let cat of dataCategories" class="pill">{{ cat }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Consents View ── -->
+  <div *ngIf="currentView === 'consents'" class="fade-in">
+    <div class="view-header-block">
+      <h2 class="view-title">My Consents Registry</h2>
+      <p class="view-subtitle">Manage and monitor data permissions granted to microorange Stock Exchange. Toggle off to withdraw consent.</p>
+    </div>
+
+    <div class="consents-list">
+      <div *ngFor="let c of consents" class="consent-item glass-panel">
+        <div class="consent-info">
+          <h4 class="consent-name">{{ c.name }}</h4>
+          <p class="consent-meta">{{ c.org }} • {{ c.scope }} • Granted on {{ c.date }}</p>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" [checked]="c.active" (change)="toggleConsent(c.id, $event)">
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+      <div *ngIf="consents.length === 0" class="glass-panel" style="padding: 30px; text-align: center; color: #7c8696;">
+        No active consent notices loaded.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Personal Data View ── -->
+  <div *ngIf="currentView === 'personal-data'" class="fade-in">
+    <div class="view-header-block">
+      <h2 class="view-title">My Personal Data Records</h2>
+      <p class="view-subtitle">A transparent view of your verified personal information held by microorange Stock Exchange.</p>
+    </div>
+
+    <div class="data-cards-grid">
+      <div class="card-panel glass-panel">
+        <h3 class="panel-title">👤 Basic Profile Information</h3>
+        <div class="profile-details-grid">
+          <div class="fld-block"><span class="lbl">Full Name</span><div class="val">{{ profileName }}</div></div>
+          <div class="fld-block"><span class="lbl">Mobile Number</span><div class="val">{{ profileMobile }}</div></div>
+          <div class="fld-block"><span class="lbl">Email</span><div class="val">{{ currentUser?.email }}</div></div>
+        </div>
+      </div>
+
+      <div class="card-panel glass-panel">
+        <h3 class="panel-title">🪪 Verified KYC & Identity Details</h3>
+        <div class="profile-details-grid">
+          <div class="fld-block"><span class="lbl">Date of Birth</span><div class="val">{{ profileDob }}</div></div>
+          <div class="fld-block"><span class="lbl">KYC Status</span><div class="val">{{ profileKyc }}</div></div>
+          <div class="fld-block"><span class="lbl">Nationality</span><div class="val">{{ profileNationality }}</div></div>
+        </div>
+      </div>
+
+      <div class="card-panel glass-panel">
+        <h3 class="panel-title">💳 Location & Identity Proof</h3>
+        <div class="profile-details-grid">
+          <div class="fld-block"><span class="lbl">City</span><div class="val">{{ profileCity }}</div></div>
+          <div class="fld-block"><span class="lbl">State</span><div class="val">{{ profileState }}</div></div>
+          <div class="fld-block"><span class="lbl">Principal Code / ID</span><div class="val">{{ profileCode }}</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Exercise Rights View ── -->
+  <div *ngIf="currentView === 'exercise-rights'" class="fade-in">
+    <div class="view-header-block">
+      <h2 class="view-title">Exercise Data Principal Rights</h2>
+      <p class="view-subtitle">Submit requests to access, correct, or erase your data, or nominate an individual under DPDP Act regulations.</p>
+    </div>
+
+    <div class="card-panel glass-panel">
+      <h3 class="panel-title">Track Submitted Requests</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Reference</th>
+              <th>Request Type</th>
+              <th>Data Category</th>
+              <th>Submitted</th>
+              <th>Details</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let r of requests">
+              <td class="ref-col">{{ r.ref }}</td>
+              <td>{{ r.type }}</td>
+              <td>{{ r.cat }}</td>
+              <td>{{ r.date }}</td>
+              <td>{{ r.details }}</td>
+              <td>
+                <span class="badge" [ngClass]="getBadgeClass(r.status)">{{ r.status }}</span>
+              </td>
+            </tr>
+            <tr *ngIf="requests.length === 0">
+              <td colspan="6" style="text-align: center; color: #7c8696; padding: 20px;">No requests filed yet.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card-panel glass-panel" style="margin-top: 20px;">
+      <h3 class="panel-title">New Request Form</h3>
+      <div class="rights-tabs">
+        <button *ngFor="let t of rightsTabs" 
+                [class.active]="activeRightsTab === t"
+                (click)="setRightsTab(t)" 
+                class="tab-btn">
+          {{ t }}
+        </button>
+      </div>
+
+      <form [formGroup]="requestForm" (ngSubmit)="submitRequest()" class="portal-form">
+        <div class="form-group">
+          <label>Data Category Reference</label>
+          <select formControlName="category">
+            <option value="">-- Select Category --</option>
+            <option *ngFor="let c of dataCategories" [value]="c">{{ c }}</option>
+          </select>
+        </div>
+
+        <div class="form-group" *ngIf="activeRightsTab === 'Correct' || activeRightsTab === 'Correction'">
+          <label>Corrected Value / New Information</label>
+          <input type="text" formControlName="correctValue" placeholder="Enter new value to update">
+        </div>
+
+        <div class="form-group">
+          <label>Supporting Details & Reason</label>
+          <textarea formControlName="details" placeholder="Please describe the details for your request..."></textarea>
+        </div>
+
+        <button type="submit" [disabled]="requestForm.invalid" class="portal-submit-btn">
+          Submit DSR Request
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ── Raise Grievance View ── -->
+  <div *ngIf="currentView === 'raise-grievance'" class="fade-in">
+    <div class="view-header-block">
+      <h2 class="view-title">Raise Grievance Concern</h2>
+      <p class="view-subtitle">Report any privacy concerns or unauthorized processing directly to the Data Protection Officer.</p>
+    </div>
+
+    <div class="card-panel glass-panel">
+      <h3 class="panel-title">New Grievance Form</h3>
+      <form [formGroup]="grievanceForm" (ngSubmit)="submitGrievance()" class="portal-form">
+        <div class="form-group">
+          <label>Subject</label>
+          <input type="text" formControlName="subject" placeholder="Enter a brief subject">
+        </div>
+
+        <div class="form-group">
+          <label>Category</label>
+          <select formControlName="category">
+            <option value="">-- Select Category --</option>
+            <option *ngFor="let c of grievanceCategories" [value]="c">{{ c }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Detailed Description</label>
+          <textarea formControlName="description" placeholder="Describe the grievance in detail..."></textarea>
+        </div>
+
+        <button type="submit" [disabled]="grievanceForm.invalid" class="portal-submit-btn">
+          Submit Grievance
+        </button>
+      </form>
+    </div>
+
+    <div class="card-panel glass-panel" style="margin-top: 20px;">
+      <h3 class="panel-title">My Filed Grievances</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Reference</th>
+              <th>Subject</th>
+              <th>Category</th>
+              <th>Submitted</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let g of grievances">
+              <td class="ref-col">{{ g.ref }}</td>
+              <td>{{ g.subject }}</td>
+              <td>{{ g.cat }}</td>
+              <td>{{ g.date }}</td>
+              <td>
+                <span class="badge" [ngClass]="getBadgeClass(g.status)">{{ g.status }}</span>
+              </td>
+            </tr>
+            <tr *ngIf="grievances.length === 0">
+              <td colspan="5" style="text-align: center; color: #7c8696; padding: 20px;">No grievances filed.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Notifications View ── -->
+  <div *ngIf="currentView === 'notifications'" class="fade-in">
+    <div class="view-header-block">
+      <h2 class="view-title">My Notifications</h2>
+      <p class="view-subtitle">Official updates about your submitted requests, notices, and policy changes.</p>
+    </div>
+
+    <div class="notifications-list">
+      <div *ngFor="let n of notifications" class="notification-item glass-panel">
+        <div class="notification-dot"></div>
+        <div class="notification-content">
+          <p class="notification-text">{{ n.text }}</p>
+          <span class="notification-time">{{ n.date }}</span>
+        </div>
+      </div>
+      <div *ngIf="notifications.length === 0" class="glass-panel" style="padding: 30px; text-align: center; color: #7c8696;">
+        No notifications found.
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Account & Security View ── -->
+  <div *ngIf="currentView === 'account-security'" class="fade-in">
+    <div class="view-header-block">
+      <h2 class="view-title">Account & Security</h2>
+      <p class="view-subtitle">Manage your credentials, view security audit logs, and configure session settings.</p>
+    </div>
+
+    <div class="card-panel glass-panel">
+      <h3 class="panel-title">D Principal Account Settings</h3>
+      <div class="portal-form">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" [value]="profileName" disabled class="disabled-input">
+        </div>
+        <div class="form-group">
+          <label>Registered Email</label>
+          <input type="text" [value]="currentUser?.email" disabled class="disabled-input">
+        </div>
+        <div class="form-group">
+          <label>Registered Mobile</label>
+          <input type="text" [value]="profileMobile" disabled class="disabled-input">
+        </div>
+        <button class="portal-submit-btn" (click)="saveProfile()">
+          Save Changes
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

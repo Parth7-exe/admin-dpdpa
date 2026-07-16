@@ -4,11 +4,10 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } 
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
 import { ToastService } from '../../core/toast.service';
-
-interface RoleMapping {
-  id: number;
-  name: string;
-}
+import { ApiService } from '../../core/api.service';
+import { environment } from '../../../environments/environment';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'dpdpa-login',
@@ -19,18 +18,19 @@ interface RoleMapping {
       <!-- ── Top Header Bar ── -->
       <header class="header-bar">
         <div class="header-logo-container">
-          <img src="assets/logo.png" alt="Jodetx Logo" class="brand-logo-img" />
+          <img *ngIf="orgLogo" [src]="orgLogo" [alt]="orgAlias + ' Logo'" class="brand-logo-img" />
+          <span *ngIf="!orgLogo" style="font-size: 20px; font-weight: 800; color: #0f172a;">{{ orgName || orgAlias }}</span>
         </div>
-        <a href="mailto:support@jodetx.com" class="help-link">Need Help ?</a>
+        <a *ngIf="supportEmail" [href]="'mailto:' + supportEmail" class="help-link">Need Help ?</a>
       </header>
 
       <!-- ── Main Grid Layout ── -->
       <div class="main-container">
         <!-- ── Left Column: Value Prop & Tablet Graphic ── -->
         <div class="content-left">
-          <h1 class="hero-title">Empowering Businesses with Smarter Financial Solutions.</h1>
-          <p class="hero-subtitle">
-            We at Jode Technology help businesses streamline finances, manage operations, and strengthen customer connections with smart, simple tech.
+          <h1 class="hero-title">{{ heroTitle || 'Empowering Businesses with Smarter Financial Solutions.' }}</h1>
+          <p class="hero-subtitle" *ngIf="heroSubtitle">
+            {{ heroSubtitle }}
           </p>
           <div class="tablet-wrapper">
             <img src="assets/tablet_dashboard_mockup.png" alt="Dashboard Mockup" class="tablet-image" />
@@ -42,10 +42,11 @@ interface RoleMapping {
           <div class="login-card">
             <!-- Centered Logo inside card -->
             <div class="card-logo-container">
-              <img src="assets/logo.png" alt="Jodetx Logo" class="card-logo-img" />
+              <img *ngIf="orgLogo" [src]="orgLogo" [alt]="orgAlias + ' Logo'" class="card-logo-img" />
+              <span *ngIf="!orgLogo" style="font-size: 24px; font-weight: 800; color: #0f172a;">{{ orgName || orgAlias }}</span>
             </div>
 
-            <h2 class="card-title">Welcome to Jode Technologies Private Limited!</h2>
+            <h2 class="card-title" *ngIf="orgName">Welcome to {{ orgName }}!</h2>
             <div class="card-subtitle">Sign in to your account</div>
 
             <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
@@ -81,8 +82,8 @@ interface RoleMapping {
               </div>
 
               <!-- Disclaimer Terms text -->
-              <div class="terms-text">
-                By continuing, you agree to <strong>Jode Technologies Private Limited <a href="#">Terms & Conditions</a></strong>, and confirm that you have read <strong>Jode Technologies Private Limited <a href="#">Privacy Policy</a></strong>, <strong><a href="#">Cookies Policy</a></strong>.
+              <div class="terms-text" *ngIf="orgName">
+                By continuing, you agree to <strong>{{ orgName }} <a [href]="termsLink || '#'">Terms & Conditions</a></strong>, and confirm that you have read <strong>{{ orgName }} <a [href]="privacyPolicyLink || '#'">Privacy Policy</a></strong><span *ngIf="cookiesPolicyLink">, <strong><a [href]="cookiesPolicyLink">Cookies Policy</a></strong></span>.
               </div>
 
               <!-- Action Button -->
@@ -365,30 +366,57 @@ export class LoginComponent implements OnInit {
   loading = false;
   step = 1;
 
-  // Domain/Email mapping to role config
-  private emailToRoleMap: Record<string, RoleMapping> = {
-    // Demo Logins
-    'admin@jodetx.com': { id: 1, name: 'Site Admin' },
-    'dpo@jodetx.com': { id: 2, name: 'DPO' },
-    'principal@jodetx.com': { id: 3, name: 'Data Principal' },
-    'superadmin@jodetx.com': { id: 4, name: 'Super Admin' },
-    // Database logins mapping
-    'mayuri.ambelkar@jodetx.com': { id: 1, name: 'Site Admin' },
-    'mayuri.test1@jodetx.com': { id: 2, name: 'DPO' },
-    'mayuri.test2@jodetx.com': { id: 3, name: 'Data Principal' }
-  };
+  orgName = '';
+  orgAlias = '';
+  orgLogo = '';
+  heroTitle = '';
+  heroSubtitle = '';
+  supportEmail = '';
+  supportContactNo = '';
+  termsLink = '';
+  privacyPolicyLink = '';
+  cookiesPolicyLink = '';
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
     private toastService: ToastService,
-    private router: Router
+    private router: Router,
+    private apiService: ApiService
   ) {}
 
   ngOnInit() {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required]],
       password: ['', []]
+    });
+    this.loadBranding();
+  }
+
+  loadBranding() {
+    this.apiService.search<any>('dpdpa_fn_organization_master_mgmt', { isActive: true }, 1, 1).subscribe({
+      next: (res) => {
+        if (res && res.records && res.records.length > 0) {
+          const org = res.records[0];
+          this.orgName = org.orgName || org.org_name || '';
+          this.orgAlias = org.alias || org.orgAlias || '';
+          this.orgLogo = org.orgLogo || org.org_logo || '';
+          this.heroSubtitle = org.description || '';
+        }
+      }
+    });
+
+    this.apiService.search<any>('dpdpa_fn_product_master_mgmt', { isActive: true }, 1, 1).subscribe({
+      next: (res) => {
+        if (res && res.records && res.records.length > 0) {
+          const prod = res.records[0];
+          this.heroTitle = prod.productDesc || '';
+          this.supportEmail = prod.supportEmail || '';
+          this.supportContactNo = prod.supportContactNo || '';
+          this.termsLink = prod.prodTnc || '';
+          this.privacyPolicyLink = prod.prodPolicy || '';
+        }
+      }
     });
   }
 
@@ -425,24 +453,64 @@ export class LoginComponent implements OnInit {
     if (this.loginForm.invalid) return;
     this.loading = true;
 
-    setTimeout(() => {
-      const emailInput = this.loginForm.get('email')?.value.trim().toLowerCase();
-      const passwordInput = this.loginForm.get('password')?.value.trim();
+    const emailInput = this.loginForm.get('email')?.value.trim().toLowerCase();
+    const passwordInput = this.loginForm.get('password')?.value.trim();
 
-      // Find matching user role based on email lookup mapping
-      const mappedRole = this.emailToRoleMap[emailInput] || { id: 1, name: 'Site Admin' }; // Fallback to Site Admin
+    // Query dpdpa_fn_verify_usr_dtl for types 1, 2, 3, 4 in parallel
+    const entityTypes = [1, 2, 3, 4];
+    const searchRequests = entityTypes.map(type => 
+      this.apiService.search<any>(
+        'dpdpa_fn_verify_usr_dtl',
+        { action: 'SEARCH', orgId: environment.orgId, productId: environment.productId || 1, emailId: emailInput, passFlg: 1, entityType: type }
+      ).pipe(
+        catchError(() => of(null))
+      )
+    );
 
-      // Validate passcode (2314 from dpdpa_pwd_mgmt table OR 123456 as standard master passcode)
-      const isValidPassword = (passwordInput === '2314' || passwordInput === '123456');
+    forkJoin(searchRequests).subscribe({
+      next: (results) => {
+        let foundUser: any = null;
+        for (const res of results) {
+          if (res && res.records && res.records.length > 0) {
+            foundUser = res.records[0];
+            break;
+          }
+        }
 
-      if (isValidPassword) {
-        this.authService.login(emailInput, mappedRole.id, mappedRole.name);
-        this.toastService.success('Authentication Successful', `Welcome back, ${mappedRole.name}!`);
-        this.router.navigate(['/dashboard']);
-      } else {
-        this.toastService.error('Authentication Failed', 'Invalid passcode. Please check your password manager.');
+        if (!foundUser) {
+          this.toastService.error('Authentication Failed', 'User not found or disabled.');
+          this.loading = false;
+          return;
+        }
+
+        const userPwd = foundUser.password || foundUser.pwdDesc || foundUser.pwd_desc || '';
+        const isValidPassword = (passwordInput === userPwd);
+
+        if (!isValidPassword) {
+          this.toastService.error('Authentication Failed', 'Invalid passcode.');
+          this.loading = false;
+          return;
+        }
+
+        const roleId = Number(foundUser.entityType || foundUser.roleId || 1);
+        const roleName = foundUser.entityTypeName || (roleId === 1 ? 'Site Admin' : roleId === 2 ? 'DPO' : roleId === 3 ? 'Data Principal' : 'Super Admin');
+        const displayName = foundUser.name || foundUser.userName || emailInput;
+        const entityId = foundUser.entityId || foundUser.entity_id || '';
+
+        this.authService.login(emailInput, roleId, roleName, displayName, entityId);
+        this.toastService.success('Authentication Successful', `Welcome back, ${displayName}!`);
+
+        if (roleId === 3) {
+          this.router.navigate(['/portal/dashboard']);
+        } else {
+          this.router.navigate(['/dashboard']);
+        }
+        this.loading = false;
+      },
+      error: () => {
+        this.toastService.error('Authentication Failed', 'Network error during validation.');
+        this.loading = false;
       }
-      this.loading = false;
-    }, 800);
+    });
   }
 }

@@ -6,6 +6,7 @@ import { ApplicationDetailComponent } from './modules/application-detail/applica
 import { LoginComponent } from './modules/login/login.component';
 import { authGuard } from './core/auth.guard';
 import { SP } from './core/config';
+import { DataPrincipalPortalComponent } from './modules/portal/portal.component';
 
 export const routes: Routes = [
   {
@@ -19,6 +20,7 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: DashboardComponent },
+      { path: 'portal/:view', component: DataPrincipalPortalComponent },
 
       // ── Application Registry ────────────────────────────────────
       {
@@ -40,7 +42,7 @@ export const routes: Routes = [
             { key: 'applicationName', label: 'Application Name', type: 'text', required: true },
             { key: 'applicationShortName', label: 'Short Name', type: 'text' },
             { key: 'applicationDescription', label: 'Description', type: 'textarea' },
-            { key: 'applicationType', label: 'Application Type', type: 'select', optionsFromCategory: 'Application Type' },
+            { key: 'applicationType', label: 'Application Type', type: 'select', optionsFromCategory: 'Application Status' },
             { key: 'businessFunction', label: 'Business Function', type: 'text' },
             { key: 'department', label: 'Department', type: 'text' },
             { key: 'goLiveDate', label: 'Go-Live Date', type: 'date' },
@@ -67,7 +69,7 @@ export const routes: Routes = [
             { key: 'applicationId', label: 'Application ID', type: 'number', required: true },
             { key: 'environmentName', label: 'Environment Name', type: 'text', required: true },
             { key: 'url', label: 'Access URL', type: 'text' },
-            { key: 'environmentStatus', label: 'Status', type: 'select', optionsFromCategory: 'Environment Type' },
+            { key: 'environmentStatus', label: 'Environment Type', type: 'select', optionsFromCategory: 'Environment Type' },
             { key: 'hostingLocation', label: 'Hosting Location / Region', type: 'text' },
             { key: 'isActive', label: 'Active Status', type: 'checkbox' }
           ]
@@ -182,7 +184,7 @@ export const routes: Routes = [
           sp: SP.APPLICATION_RISK_PROFILE,
           fields: [
             { key: 'applicationId', label: 'Application ID', type: 'number', required: true },
-            { key: 'overallRiskLevel', label: 'Overall Risk Level', type: 'select', optionsFromCategory: 'Risk Level' },
+            { key: 'overallRiskLevel', label: 'Overall Risk Level', type: 'select', optionsFromCategory: 'Risk Rating' },
             { key: 'riskScore', label: 'Risk Score (0 - 100)', type: 'number' },
             { key: 'assessmentDate', label: 'Assessment Conducted On', type: 'date' },
             { key: 'assessedBy', label: 'Assessor Name', type: 'text' },
@@ -203,7 +205,7 @@ export const routes: Routes = [
           sp: SP.APPLICATION_COMPLIANCE_SCOPE,
           fields: [
             { key: 'applicationId', label: 'Application ID', type: 'number', required: true },
-            { key: 'frameworkName', label: 'Compliance Standard', type: 'select', optionsFromCategory: 'Compliance Framework' },
+            { key: 'frameworkName', label: 'Compliance Standard', type: 'select', optionsFromCategory: 'Framework' },
             { key: 'applicableFlag', label: 'Is Applicable', type: 'checkbox' },
             { key: 'remarks', label: 'Scope Remarks', type: 'textarea' },
             { key: 'isActive', label: 'Active Status', type: 'checkbox' }
@@ -487,6 +489,25 @@ export const routes: Routes = [
           fields: [
             { key: 'channelCode', label: 'Channel Code', type: 'text', required: true },
             { key: 'channelName', label: 'Channel Display Name', type: 'text', required: true },
+            { key: 'isActive', label: 'Active Status', type: 'checkbox' }
+          ]
+        }
+      },
+      {
+        path: 'cookie-categories',
+        component: GenericModuleComponent,
+        data: {
+          title: 'Cookie Categories',
+          subtitle: 'Define and audit classification groups for cookie consents.',
+          singleName: 'Cookie Category',
+          primaryKey: 'categoryId',
+          sp: SP.COOKIE_CATEGORIES,
+          fields: [
+            { key: 'categoryKey', label: 'Category Key (e.g. Necessary)', type: 'text', required: true },
+            { key: 'name', label: 'Category Name', type: 'text', required: true },
+            { key: 'description', label: 'Description', type: 'textarea' },
+            { key: 'isEssential', label: 'Is Essential (Necessary)', type: 'checkbox' },
+            { key: 'displayOrder', label: 'Display Order', type: 'number' },
             { key: 'isActive', label: 'Active Status', type: 'checkbox' }
           ]
         }

@@ -18,6 +18,10 @@ export const SP = {
   APPLICATION_DATA_SCOPE:       { fn: 'dpdpa_fn_application_data_scope_mgmt',       pa: 'dpdpa_pa_application_data_scope_mgmt' },
   APPLICATION_DOCUMENT:         { fn: 'dpdpa_fn_application_document_repository_mgmt', pa: 'dpdpa_pa_application_document_repository_mgmt' },
   APPLICATION_DB_MAPPING:       { fn: 'dpdpa_fn_application_database_mapping_mgmt', pa: 'dpdpa_pa_application_database_mapping_mgmt' },
+  APPLICATION_COOKIES:          { fn: 'dpdpa_fn_cookies_mgmt',                      pa: 'dpdpa_pa_cookies_mgmt' },
+  COOKIE_CATEGORIES:            { fn: 'dpdpa_fn_cookie_categories_mgmt',            pa: 'dpdpa_pa_cookie_categories_mgmt' },
+  COOKIE_CONSENT:               { fn: 'dpdpa_fn_cookie_consents_mgmt',              pa: 'dpdpa_pa_cookie_consents_mgmt' },
+  COOKIE_NOTICE_CONFIG:         { fn: 'dpdpa_fn_cookie_notice_config_mgmt',         pa: 'dpdpa_pa_cookie_notice_config_mgmt' },
 
   // ── Data Discovery ──────────────────────────────────────────
   DATABASE_MASTER:              { fn: 'dpdpa_fn_database_master_mgmt',              pa: 'dpdpa_pa_database_master_mgmt' },
@@ -81,6 +85,10 @@ export const SP = {
   GAP_SCORECARD:                { fn: 'dpdpa_fn_gap_analysis_scorecard_mgmt',        pa: 'dpdpa_pa_gap_analysis_scorecard_mgmt' },
   GAP_AUDIT_LOG:                { fn: 'dpdpa_fn_gap_analysis_audit_log_mgmt',        pa: 'dpdpa_pa_gap_analysis_audit_log_mgmt' },
 
+  // ── Auth / User ──────────────────────────────────────────
+  LOGIN:                        { fn: 'dpdpa_fn_validate_user',                    pa: 'dppa_pa_login_attempt' },
+  USER_MASTER:                  { fn: 'dpdpa_fn_user_org_prod_wise',               pa: 'dpdpa_pa_forget_pwd' },
+
   // ── Masters / Lookups ────────────────────────────────────────
   MENU_MGMT:                    { fn: 'dpdpa_fn_menu_mgmt',                         pa: 'dpdpa_pa_menu_mgmt' },
   CATEGORY_MASTER:              { fn: 'dpdpa_fn_category_mst_mgmt',                 pa: 'dpdpa_pa_category_mst_mgmt' },
@@ -95,6 +103,7 @@ export const SP = {
 export const ACTION = {
   SEARCH: 'SEARCH',
   GETBYID: 'GETBYID',
+  GETBYAPP: 'GETBYAPP',
   CREATE: 'C',
   UPDATE: 'U',
   DELETE: 'D',

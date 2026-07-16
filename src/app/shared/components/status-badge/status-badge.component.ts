@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CategoryService } from '../../core/category.service';
+import { CategoryService } from '../../../core/category.service';
 
 @Component({
   selector: 'dpdpa-status-badge',

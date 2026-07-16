@@ -66,61 +66,63 @@ export interface FormField {
       (close)="drawerOpen = false"
     >
       <form [formGroup]="form" (ngSubmit)="save()" body>
-        <div *ngFor="let field of fields" class="form-group">
-          <label [class.required]="field.required">{{ field.label }}</label>
+        <ng-container *ngFor="let field of fields">
+          <div *ngIf="field.key !== 'isActive'" class="form-group">
+            <label [class.required]="field.required">{{ field.label }}</label>
 
-          <!-- Text Field -->
-          <input 
-            *ngIf="field.type === 'text'"
-            type="text"
-            [formControlName]="field.key"
-            [placeholder]="'Enter ' + field.label.toLowerCase()"
-          />
+            <!-- Text Field -->
+            <input 
+              *ngIf="field.type === 'text'"
+              type="text"
+              [formControlName]="field.key"
+              [placeholder]="'Enter ' + field.label.toLowerCase()"
+            />
 
-          <!-- Number Field -->
-          <input 
-            *ngIf="field.type === 'number'"
-            type="number"
-            [formControlName]="field.key"
-            [placeholder]="'Enter ' + field.label.toLowerCase()"
-          />
+            <!-- Number Field -->
+            <input 
+              *ngIf="field.type === 'number'"
+              type="number"
+              [formControlName]="field.key"
+              [placeholder]="'Enter ' + field.label.toLowerCase()"
+            />
 
-          <!-- Textarea Field -->
-          <textarea 
-            *ngIf="field.type === 'textarea'"
-            [formControlName]="field.key"
-            [placeholder]="'Enter ' + field.label.toLowerCase()"
-          ></textarea>
+            <!-- Textarea Field -->
+            <textarea 
+              *ngIf="field.type === 'textarea'"
+              [formControlName]="field.key"
+              [placeholder]="'Enter ' + field.label.toLowerCase()"
+            ></textarea>
 
-          <!-- Date Field -->
-          <input 
-            *ngIf="field.type === 'date'"
-            type="date"
-            [formControlName]="field.key"
-          />
+            <!-- Date Field -->
+            <input 
+              *ngIf="field.type === 'date'"
+              type="date"
+              [formControlName]="field.key"
+            />
 
-          <!-- Checkbox / Toggle -->
-          <label *ngIf="field.type === 'checkbox'" class="toggle-switch">
-            <input type="checkbox" [formControlName]="field.key" />
-            <span class="toggle-track"></span>
-          </label>
+            <!-- Checkbox / Toggle -->
+            <label *ngIf="field.type === 'checkbox'" class="toggle-switch">
+              <input type="checkbox" [formControlName]="field.key" />
+              <span class="toggle-track"></span>
+            </label>
 
-          <!-- Select List preloaded from Category Details -->
-          <select *ngIf="field.type === 'select'" [formControlName]="field.key">
-            <option [value]="null">-- Select {{ field.label }} --</option>
-            <option *ngFor="let opt of getSelectOptions(field)" [value]="opt.id">
-              {{ opt.title }}
-            </option>
-          </select>
+            <!-- Select List preloaded from Category Details -->
+            <select *ngIf="field.type === 'select'" [formControlName]="field.key">
+              <option [value]="null">-- Select {{ field.label }} --</option>
+              <option *ngFor="let opt of getSelectOptions(field)" [value]="opt.id">
+                {{ opt.title }}
+              </option>
+            </select>
 
-          <!-- Error Feedback -->
-          <div 
-            class="form-error" 
-            *ngIf="form.get(field.key)?.touched && form.get(field.key)?.invalid"
-          >
-            {{ field.label }} is required.
+            <!-- Error Feedback -->
+            <div 
+              class="form-error" 
+              *ngIf="form.get(field.key)?.touched && form.get(field.key)?.invalid"
+            >
+              {{ field.label }} is required.
+            </div>
           </div>
-        </div>
+        </ng-container>
       </form>
 
       <div footer>
